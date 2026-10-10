@@ -1,10 +1,9 @@
-namespace Rescriptable;
+﻿namespace Rescriptable;
 
-public static class Program
+class Program
 {
-    public static int Main()
+    static void Main(string[] args)
     {
-        
-        return 0;
+        Console.WriteLine("Hello, World!");
     }
 }
