@@ -1,26 +1,11 @@
-namespace HandsOn;
-
-using NAudio;
-using NAudio.Wave;
-
+namespace Rescriptable.src;
 
 public interface IPlayable
 {
-    // void Play(Song? song)
-    // {
-    //     if (song is null)
-    //     {
-    //         return;
-    //     }
-    //
-    //     using var audioFile = new AudioFileReader(song.GetAbsolutePath());
-    //     using var player = new WasapiPlayerBuilder().Build();
-    //     player.Init(audioFile);
-    //     player.Play();
-    //     while (player.PlaybackState == PlaybackState.Playing)
-    //     {
-    //         Thread.Sleep(500);
-    //     }
-    // }
     void Play(Song? song);
+    void Pause();
+    void Next();
+    void Prev();
+    void WindForward(int seconds);
+    void WindBackward(int seconds);
 }

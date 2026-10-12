@@ -1,4 +1,4 @@
-namespace HandsOn;
+namespace Rescriptable.src;
 
 public enum PlayMode
 {

@@ -1,103 +1,108 @@
-namespace HandsOn;
+namespace Rescriptable.src;
 
-using System.Collections;
+using System;
+using System.Runtime.Serialization;
 
 
 /*
  *
  *  Field
- *  private List<string> songList
+ *  private List<Song> songList
  *
- *  Function
+ *  Constructor
+ *  public Playlist(Song[] songs);
+ *  public Playlist(Playlist playlist);
+ * 
+ *  Function 
  *
- *  public bool Add(string indentifier);
- *  public bool Add(string[] indentifiers);
- *  public bool Remove(string indentifier);
- *  public bool Remove(string[] indentifiers);
- *  public bool CheckSongExist(String indentifier);
+ *  public bool Add(Song song);
+ *  public bool Add(Song[] songs);
+ *  public bool Remove(Song song);
+ *  public bool Remove(Song[] songs);
+ *  public Song GetIndexSong(int index);
  *
  */
 
 
-
-public class Playlist
+[Serializable]
+public class Playlist : ISerializable
 {
-    private List<string> songList = new();
-
-    // How to reference backSongs ?  Instead of load
-    private BackSongs* backSongs;
-
-
-    // indentifier in playlist, but backSongs remove, Todo handle it --- need retrun resourse not found and remove it from list
-
+    private List<Song> songList = new();
 
 
     // Constructor
-    public Playlist(string[] indentifiers, BackSongs backSongs)
+    public Playlist(Song[] songs)
     {
-        this.backSongs = backSongs;
-        this.Add(indentifiers);
+        this.Add(songs);
     }
     /* Copy the songs from another @Playlist. */
-    public Playlist(Playlist playlist, BackSongs backSongs)
+    public Playlist(Playlist playlist) : this(songs: playlist.GetSongList().ToArray())
     {
-        this.backSongs = backSongs;
-        this.songList = playlist.GetSongList();
+        // this.Add(playlist.GetSongList());
     }
 
 
 
-
-    // + DeepCopy
-    public List<string> GetSongList()
+    // +DeepCopy Song
+    public List<Song> GetSongList()
     {
-        List<string> copyList = new();
-        foreach (var indentifier in this.songList)
+        return DeepCopy(this.songList);  
+    }
+
+    // DeepCopy
+    private List<Song> DeepCopy(List<Song> songList)
+    {
+        List<Song> copyList = new();
+        foreach( var song in songList )
         {
-            copyList.Add((string)indentifier.Clone());
+            copyList.Add(
+                new Song (
+                    song.GetIdentifier(),
+                    song.GetAbsolutePath()
+                )
+            );
         }
         return copyList;
     }
 
-    
-    // public bool Add(string indentifier);
-    // public bool Add(string[] indentifiers);
-    // public bool Remove(string indentifier);
-    // public bool Remove(string[] indentifiers);
-    // public void show();
-    // public bool CheckSongExist(String indentifier);
-     
-    // ---------------------- Add & Remove & Show method
-    
+ 
+
+    // public bool Add(Song song);
+    // public bool Add(Song[] songs);
+    // public bool Remove(Song song);
+    // public bool Remove(Song[] songs);
+    // public void show();  
+    // public Song GetIndexSong(int index)
+
+    // ---------------------- Method Implement
+
     /* Returns true on successful operations; false otherwise. */
-    public bool Add(string indentifier)
+    // repeat problem --> allow
+    public bool Add(Song song)
     {
-        if (indentifier == null || indentifier == "")
+        if (song is null)
         {
             return false;
         }
-        if ( !backSongs.CheckIndentifierExist(indentifier) || songList.Contains(indentifier) )
-        {
-            return false;
-        }
-        // If have a repeat key in dict no throw error , return false in silence
-        songList.Add(indentifier);
-        return  true;
+
+        songList.Add(song);
+        return true;
     }
 
     /* Returns true on successful operations; false otherwise. */
-    public bool Add(string[] indentifiers)
+    // repeat problem --> allow
+    public bool Add(Song[] songs)
     {
-        if (indentifiers == null)
+        if (songs is null)
         {
             return false;
         }
 
-        foreach (var indentifier in indentifiers)
+        foreach (var song in songs)
         {
-            if (!this.Add(indentifier))
+            if (!this.Add(song))
             {
-                Console.WriteLine($"Insert Failed after {indentifier}");
+                Console.WriteLine($"Insert Failed after {song.GetIdentifier()}");
                 return false;
             }
         }
@@ -105,37 +110,32 @@ public class Playlist
     }
 
     /* Returns true on successful operations; false otherwise. */
-    public bool Remove(string indentifier)
+    // repeat probelm --> allow; remove one of them in forth
+    public bool Remove(Song song)
     {
-        if (indentifier == null || indentifier == "")
+        if (song is null)
         {
             return false;
         }
-        // remove not need resource in backend
-        //if ( !backSongs.CheckIndentifierExist(indentifier) || !songList.Contains(indentifier) )
-        // if ( !songList.Contains(indentifier) )
-        // {
-        //     return false;
-        // }
 
-        // If return true dele successful, return false  not exist in list
-        return songList.Remove(indentifier);
+        return songList.Remove(song);
     }
-    
+
     /* Returns true on successful operations; false otherwise. */
-    public bool Remove(string[] indentifiers)
+    // repeat probelm --> allow; remove one of them in forth
+    public bool Remove(Song[] songs)
     {
-        if (indentifiers == null)
+        if (songs is null)
         {
             return false;
         }
-        
-        foreach (var indentifier in indentifiers)
+
+        foreach (var song in songs)
         {
             // class method
-            if (!this.Remove(indentifier))
+            if (!this.Remove(song))
             {
-                Console.WriteLine($"Remove Failed after {indentifier}");
+                Console.WriteLine($"Remove Failed after {song.GetIdentifier()}");
                 return false;
             }
         }
@@ -143,19 +143,28 @@ public class Playlist
     }
 
 
-    // exist return true, else return false
-    public bool CheckSongExist(String indentifier)
+    public Song GetIndexSong(int index)
     {
-        return songList.Contains(indentifier);
+        return songList[index];
     }
+
+
+
+
 
     // Test
     public void show()
     {
-        foreach (var indentifier in this.songList)
+        foreach (var song in songList)
         {
-            Console.WriteLine(indentifier);
+            Console.WriteLine(song.GetIdentifier());
         }
     }
 
+    // https://www.google.com/search?client=firefox-b-d&q=C%23+ISerializable+GetObjectData
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        info.AddValue(nameof(songList), songList);
+    }
 }
+
