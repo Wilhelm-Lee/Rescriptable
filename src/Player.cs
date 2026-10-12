@@ -106,4 +106,9 @@ public class Player : IPlayable
     {
         this.playlist = new Playlist(playlist.GetSongList().ToArray());
     }
+
+
+
+
+
 }
