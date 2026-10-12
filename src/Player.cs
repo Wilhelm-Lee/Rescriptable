@@ -7,7 +7,7 @@ public class Player : IPlayable
     // Default Attribute
     private PlayMode mode = PlayMode.STOP_AFTER_THIS;
     private PlayingState playingState = PlayingState.STOPPED;
-    private int index = 0;
+    private int index = 0;              // [0, max-1];
     private int secondsPlayed = 0;
 
     public Player(Playlist playlist)
@@ -36,7 +36,7 @@ public class Player : IPlayable
             // 3min actually music player time
             Thread.Sleep(300 - secondsPlayed);
 
-            // record secondsPlayed 
+            // record secondsPlayed time
 
 
             Console.WriteLine($"~~End of the song {song.GetIdentifier()} ~~");
@@ -64,28 +64,80 @@ public class Player : IPlayable
     }
 
 
-    // mode influence index, no handle index 
-    //; and reset offset = 0;
     public void Next()
     {
-        var loopIndex = index++ % playlist.GetSongList().Count;
+        // remove elem of list index will be not invalid for song
+        int maxSongNum = playinglist.GetSongList().Count;
+        index++;
         secondsPlayed = 0;
-        this.Play(playlist.GetIndexSong(loopIndex));
+        playingState = PlayingState.STOPPED;
+
+
+        // index still invariant but stop
+        if ( playingState == PlayingState.STOP_AFTER_THIS )
+            index--;
+            return;
+            
+        // index == Max stop
+        if ( playingState == PlayingState.STOP_AFTER_LIST )
+            if (index > maxSongNum - 1)
+            {
+                index = maxSongNum - 1;
+                return
+            }
+
+        // index invariant
+        if ( playingState == PlayingState.LOOP_ON_THIS )
+            index--;
+
+        if ( playingState == PlayingState.LOOP_ON_LIST )
+            index = index % maxSongNum;
+
+
+        this.Play(playlist.GetIndexSong(index));
+        return;
     }
 
 
-    // mode influence outside index
-    //; and reset offset = 0;
     public void Prev()
     {
-        int loopIndex = index++ % playlist.GetSongList().Count;
+        // remove elem of list index will be not invalid for song
+        int maxSongNum = playinglist.GetSongList().Count;
+        index--;
         secondsPlayed = 0;
+        playingState = PlayingState.STOPPED;
+
+
+
+        // index still invariant but stop
+        if ( playingState == PlayingState.STOP_AFTER_THIS )
+            index++;
+            return;
+            
+        // index == Max stop
+        if ( playingState == PlayingState.STOP_AFTER_LIST )
+            if (index < 0)
+            {
+                index = 0;
+                return
+            }
+
+        // index invariant
+        if ( playingState == PlayingState.LOOP_ON_THIS )
+            index--;
+
+        if ( playingState == PlayingState.LOOP_ON_LIST )
+            index = index % maxSongNum;
+
+
         this.Play(playlist.GetIndexSong(index));
+        return;
     }
+
 
     public void WindForward(int seconds)
     {
-        // need song time
+        // need obtainer song time
         secondsPlayed += seconds;
     }
 
@@ -106,9 +158,4 @@ public class Player : IPlayable
     {
         this.playlist = new Playlist(playlist.GetSongList().ToArray());
     }
-
-
-
-
-
 }
