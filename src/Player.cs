@@ -67,30 +67,32 @@ public class Player : IPlayable
     public void Next()
     {
         // remove elem of list index will be not invalid for song
-        int maxSongNum = playinglist.GetSongList().Count;
+        int maxSongNum = playlist.GetSongList().Count;
         index++;
         secondsPlayed = 0;
         playingState = PlayingState.STOPPED;
 
 
         // index still invariant but stop
-        if ( playingState == PlayingState.STOP_AFTER_THIS )
+        if ( mode == PlayMode.STOP_AFTER_THIS )
+        {   
             index--;
             return;
-            
+        }
+
         // index == Max stop
-        if ( playingState == PlayingState.STOP_AFTER_LIST )
+        if ( mode == PlayMode.STOP_AFTER_LIST )
             if (index > maxSongNum - 1)
             {
                 index = maxSongNum - 1;
-                return
+                return;
             }
 
         // index invariant
-        if ( playingState == PlayingState.LOOP_ON_THIS )
+        if ( mode == PlayMode.LOOP_ON_THIS )
             index--;
 
-        if ( playingState == PlayingState.LOOP_ON_LIST )
+        if ( mode == PlayMode.LOOP_ON_LIST )
             index = index % maxSongNum;
 
 
@@ -102,7 +104,7 @@ public class Player : IPlayable
     public void Prev()
     {
         // remove elem of list index will be not invalid for song
-        int maxSongNum = playinglist.GetSongList().Count;
+        int maxSongNum = playlist.GetSongList().Count;
         index--;
         secondsPlayed = 0;
         playingState = PlayingState.STOPPED;
@@ -110,23 +112,25 @@ public class Player : IPlayable
 
 
         // index still invariant but stop
-        if ( playingState == PlayingState.STOP_AFTER_THIS )
+        if ( mode == PlayMode.STOP_AFTER_THIS )
+        {
             index++;
             return;
+        }
             
         // index == Max stop
-        if ( playingState == PlayingState.STOP_AFTER_LIST )
+        if ( mode == PlayMode.STOP_AFTER_LIST )
             if (index < 0)
             {
                 index = 0;
-                return
+                return;
             }
 
         // index invariant
-        if ( playingState == PlayingState.LOOP_ON_THIS )
+        if ( mode == PlayMode.LOOP_ON_THIS )
             index--;
 
-        if ( playingState == PlayingState.LOOP_ON_LIST )
+        if ( mode == PlayMode.LOOP_ON_LIST )
             index = index % maxSongNum;
 
 
